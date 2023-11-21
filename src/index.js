@@ -1,22 +1,24 @@
 import "./style.css";
 import { openModal } from "./modal";
+import { img } from "./apple";
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
 // Couleur des éléments
 const snakeColor = "#009000";
 const snakeHeadColor = "#114c11";
-const appleColor = "red";
-const scoreColor = "purple";
-let direction = "est";
+const appleColor = "#72262a";
+const scoreColor = "#8dd9d5";
+let direction;
 let score;
 let speed;
-let gridElem = 40; // 20 * 20
+let gridElem;
 let snake;
 let apple;
 
 // Écouteur clavier
 document.addEventListener("keydown", (event) => {
+  console.log(event);
   switch (event.key) {
     case "ArrowRight": {
       if (direction !== "ouest") {
@@ -90,12 +92,13 @@ document.addEventListener("touchstart", function (event) {
     }
   }
 });
+// Redimensionnement
 window.addEventListener("resize", () => {
   resizeGame();
 });
 
 // Dessins
-export const draw = {
+const draw = {
   drawMap: () => {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -123,7 +126,14 @@ export const draw = {
   },
   drawApple: () => {
     ctx.fillStyle = appleColor;
-    ctx.fillRect(apple[0] * gridElem, apple[1] * gridElem, gridElem, gridElem);
+    ctx.drawImage(
+      img,
+      apple[0] * gridElem,
+      apple[1] * gridElem,
+      gridElem,
+      gridElem
+    );
+    // ctx.fillRect();
   },
   drawScore: () => {
     ctx.fillStyle = scoreColor;
@@ -222,37 +232,37 @@ const gameLogic = {
   start: () => {
     score = 0;
     speed = 750;
+    direction = "est";
     apple = [Math.trunc(Math.random() * 20), Math.trunc(Math.random() * 20)];
     snake = [
       [9, 9],
       [8, 9],
       [7, 9],
     ];
-    resizeGame();
+    gameLogic.resizeGame();
     draw.drawMap();
     draw.drawSnake();
     draw.drawApple();
     draw.drawScore();
     requestAnimationFrame(gameLogic.move);
   },
-};
-
-const resizeGame = () => {
-  if (window.innerWidth < 576) {
-    gridElem = 20;
-  } else if (window.innerWidth < 768) {
-    gridElem = 25;
-  } else if (window.innerWidth < 992) {
-    gridElem = 30;
-  } else if (window.innerWidth < 992) {
-    gridElem = 35;
-  } else if (window.innerWidth < 1200) {
-    gridElem = 40;
-  } else if (window.innerWidth >= 1200) {
-    gridElem = 45;
-  }
-  canvas.width = Math.floor((window.innerWidth - 2) / gridElem) * gridElem;
-  canvas.height = Math.floor((window.innerHeight - 2) / gridElem) * gridElem;
+  resizeGame: () => {
+    if (window.innerWidth < 576) {
+      gridElem = 25;
+    } else if (window.innerWidth < 768) {
+      gridElem = 30;
+    } else if (window.innerWidth < 992) {
+      gridElem = 35;
+    } else if (window.innerWidth < 992) {
+      gridElem = 40;
+    } else if (window.innerWidth < 1200) {
+      gridElem = 45;
+    } else if (window.innerWidth >= 1200) {
+      gridElem = 70;
+    }
+    canvas.width = Math.floor((window.innerWidth - 2) / gridElem) * gridElem;
+    canvas.height = Math.floor((window.innerHeight - 2) / gridElem) * gridElem;
+  },
 };
 
 gameLogic.start();
