@@ -17,3 +17,53 @@ body {
 canvas {
   border: 1px solid black;
 }
+
+.calc {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal {
+  background: white;
+  min-width: 30rem;
+  border-radius: 0.3rem;
+  padding: 5rem;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3);
+  text-align: center;
+}
+p {
+  margin: 1rem 0 3rem 0;
+}
+.btn {
+  border: 0;
+  border-radius: 3px;
+  padding: 1rem 2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  margin-left: 0.5rem;
+}
+.btn:hover {
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3);
+  transition: box-shadow 0.2s;
+}
+.btn-primary {
+  background: #2ecc71;
+  color: white;
+}
+.btn-secondary {
+  border: 1px solid #2ecc71;
+  background: white;
+  color: #2ecc71;
+}
+.btn-danger {
+  border: 1px solid #e74c3c;
+  background: white;
+  color: #e74c3c;
+}

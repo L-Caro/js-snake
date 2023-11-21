@@ -1,48 +1,22 @@
 import "./style.css";
-
+import { openModal } from "./modal";
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
 // Couleur des éléments
-const snakeColor = "green";
+const snakeColor = "#009000";
+const snakeHeadColor = "#114c11";
 const appleColor = "red";
-
-// Direction de départ
-const directions = ["nord", "ouest", "sud", "est"];
+const scoreColor = "purple";
 let direction = "est";
-
-// score
-let score = 0;
-
-// vitesse
-const speed = 500; // vitesse de déplacement en ms
-
-// Grille et position de la pomme et du serpent
-const gridElem = 40; // 20 * 20
-const snake = [
-  [9, 9],
-  [8, 9],
-  [7, 9],
-];
-let apple = [5, 5];
-
-const drawMap = () => {
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, 800, 800);
-};
-const drawSnake = () => {
-  ctx.fillStyle = snakeColor;
-  for (let body of snake) {
-    ctx.fillRect(body[0] * gridElem, body[1] * gridElem, gridElem, gridElem);
-  }
-};
-const drawApple = () => {
-  ctx.fillStyle = appleColor;
-  ctx.fillRect(apple[0] * gridElem, apple[1] * gridElem, gridElem, gridElem);
-};
+let score;
+let speed;
+let gridElem = 40; // 20 * 20
+let snake;
+let apple;
 
 // Écouteur clavier
-window.addEventListener("keydown", (event) => {
+document.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "ArrowRight": {
       if (direction !== "ouest") {
@@ -116,95 +90,169 @@ document.addEventListener("touchstart", function (event) {
     }
   }
 });
+window.addEventListener("resize", () => {
+  resizeGame();
+});
 
-const generateApple = () => {
-  const [x, y] = [
-    Math.trunc(Math.random() * 20),
-    Math.trunc(Math.random() * 20),
-  ];
-  for (let body of snake) {
-    if (body[0] === x && body[1] === y) {
-      return generateApple();
-    }
-  }
-  apple = [x, y];
-};
-
-const gameover = () => {
-  if (
-    snake[0][0] > 19 ||
-    snake[0][0] < 0 ||
-    snake[0][1] > 19 ||
-    snake[0][1] < 0
-  ) {
-    // return true;
-  } else {
-    const [head, ...body] = snake;
-    for (let bodyElem of body) {
-      if (bodyElem[0] === head[0] && bodyElem[1] === head[1]) {
-        return true;
+// Dessins
+export const draw = {
+  drawMap: () => {
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  },
+  drawSnake: () => {
+    for (let i = 0; i < snake.length; i++) {
+      if (i === 0) {
+        ctx.fillStyle = snakeHeadColor;
+        ctx.fillRect(
+          snake[i][0] * gridElem,
+          snake[i][1] * gridElem,
+          gridElem - 2,
+          gridElem - 2
+        );
+      } else {
+        ctx.fillStyle = snakeColor;
+        ctx.fillRect(
+          snake[i][0] * gridElem,
+          snake[i][1] * gridElem,
+          gridElem - 2,
+          gridElem - 2
+        );
       }
     }
-  }
-  return false;
+  },
+  drawApple: () => {
+    ctx.fillStyle = appleColor;
+    ctx.fillRect(apple[0] * gridElem, apple[1] * gridElem, gridElem, gridElem);
+  },
+  drawScore: () => {
+    ctx.fillStyle = scoreColor;
+    ctx.font = "40px sans-serif";
+    ctx.textBaseline = "top";
+    ctx.fillText(score, gridElem, gridElem);
+  },
 };
 
-const updateSnakePosition = () => {
-  let head;
-  switch (direction) {
-    case "est": {
-      head = [snake[0][0] + 1, snake[0][1]];
-      break;
+// Logique
+const gameLogic = {
+  generateApple: () => {
+    score++;
+    score % 20 === 0 && speed !== 900 ? (speed += 30) : speed;
+    score > 200 ? (speed = 940) : speed;
+    const [x, y] = [
+      Math.trunc((Math.random() * canvas.width) / gridElem),
+      Math.trunc((Math.random() * canvas.height) / gridElem),
+    ];
+    for (let body of snake) {
+      if (body[0] === x && body[1] === y) {
+        return gameLogic.generateApple();
+      }
     }
-    case "ouest": {
-      head = [snake[0][0] - 1, snake[0][1]];
-      break;
+    apple = [x, y];
+  },
+  gameOver: () => {
+    if (
+      snake[0][0] > canvas.width / gridElem - 1 ||
+      snake[0][0] < 0 ||
+      snake[0][1] > canvas.height / gridElem - 1 ||
+      snake[0][1] < 0
+    ) {
+      return true;
+    } else {
+      const [head, ...body] = snake;
+      for (let bodyElem of body) {
+        if (bodyElem[0] === head[0] && bodyElem[1] === head[1]) {
+          runnig = false;
+          return true;
+        }
+      }
     }
-    case "nord": {
-      head = [snake[0][0], snake[0][1] - 1];
-      break;
+    return false;
+  },
+  updateSnakePosition: () => {
+    let head;
+    switch (direction) {
+      case "est": {
+        head = [snake[0][0] + 1, snake[0][1]];
+        break;
+      }
+      case "ouest": {
+        head = [snake[0][0] - 1, snake[0][1]];
+        break;
+      }
+      case "nord": {
+        head = [snake[0][0], snake[0][1] - 1];
+        break;
+      }
+      case "sud": {
+        head = [snake[0][0], snake[0][1] + 1];
+        break;
+      }
+      default: {
+      }
     }
-    case "sud": {
-      head = [snake[0][0], snake[0][1] + 1];
-      break;
+    snake.unshift(head);
+    // collision avec la pomme :
+    if (head[0] === apple[0] && head[1] === apple[1]) {
+      gameLogic.generateApple();
+    } else {
+      snake.pop();
     }
-    default: {
-    }
-  }
-  snake.unshift(head);
-  // collision avec la pomme :
-  if (head[0] === apple[0] && head[1] === apple[1]) {
-    generateApple();
-  } else {
-    snake.pop();
-  }
 
-  return gameover();
+    return gameLogic.gameOver();
+  },
+  move: async () => {
+    if (!gameLogic.updateSnakePosition()) {
+      draw.drawMap();
+      draw.drawSnake();
+      draw.drawScore();
+      draw.drawApple();
+      setTimeout(() => {
+        requestAnimationFrame(gameLogic.move);
+      }, 1000 - speed);
+    } else {
+      const result = await openModal(score);
+      if (result === true) {
+        console.log("je suis du bon coté");
+
+        gameLogic.start();
+      }
+    }
+  },
+  start: () => {
+    score = 0;
+    speed = 750;
+    apple = [Math.trunc(Math.random() * 20), Math.trunc(Math.random() * 20)];
+    snake = [
+      [9, 9],
+      [8, 9],
+      [7, 9],
+    ];
+    resizeGame();
+    draw.drawMap();
+    draw.drawSnake();
+    draw.drawApple();
+    draw.drawScore();
+    requestAnimationFrame(gameLogic.move);
+  },
 };
 
-const drawScore = () => {
-  ctx.fillStyle = "white";
-  ctx.font = "40px sans-serif";
-  ctx.textBaseline = "top";
-  ctx.fillText(score, gridElem, gridElem);
-};
-
-drawMap();
-drawSnake();
-drawApple();
-
-const move = () => {
-  if (!updateSnakePosition()) {
-    drawMap();
-    drawSnake();
-    drawScore();
-    drawApple();
-    setTimeout(() => {
-      requestAnimationFrame(move);
-    }, speed);
-  } else {
-    alert("perdu");
+const resizeGame = () => {
+  if (window.innerWidth < 576) {
+    gridElem = 20;
+  } else if (window.innerWidth < 768) {
+    gridElem = 25;
+  } else if (window.innerWidth < 992) {
+    gridElem = 30;
+  } else if (window.innerWidth < 992) {
+    gridElem = 35;
+  } else if (window.innerWidth < 1200) {
+    gridElem = 40;
+  } else if (window.innerWidth >= 1200) {
+    gridElem = 45;
   }
+  canvas.width = Math.floor((window.innerWidth - 2) / gridElem) * gridElem;
+  canvas.height = Math.floor((window.innerHeight - 2) / gridElem) * gridElem;
 };
 
-requestAnimationFrame(move);
+gameLogic.start();
