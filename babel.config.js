@@ -6,8 +6,8 @@ module.exports = {
         useBuiltIns: "usage",
         corejs: 3,
         debug: true,
-        targets: "> 0.25%, not dead",
-      },
-    ],
-  ],
+        targets: "> 0.25%, not dead"
+      }
+    ]
+  ]
 };

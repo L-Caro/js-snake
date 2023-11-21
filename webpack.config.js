@@ -12,16 +12,16 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /.js/,
+        test: /\.js/,
         exclude: /(node_modules)/,
         use: ["babel-loader"],
       },
       {
-        test: /.css$/i,
+        test: /\.css$/i,
         use: ["style-loader", "css-loader"],
       },
       {
-        test: /.(png|svg|jpg|gif)$/,
+        test: /\.(png|svg|jpg|gif)$/,
         use: ["file-loader"],
         exclude: /node_modules/,
       },
@@ -36,9 +36,9 @@ module.exports = {
   devtool: "source-map",
   mode: "development",
   devServer: {
-    open: false,
     static: path.resolve(__dirname, "./dist"),
-    port: 4001,
+    open: true,
+    port: 3001,
     historyApiFallback: {
       index: "index.html",
     },
